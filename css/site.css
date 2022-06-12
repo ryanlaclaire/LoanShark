@@ -7,6 +7,19 @@
     --success-color: green;
 }
 
+#payment {
+    color: black;
+}
+
+.totCost {
+    font-weight: bold;
+}
+
+.formColor {
+    background-color: lightgray;
+    padding: .25rem;
+}
+
 body {
     color: var(--dark-color);
 }
@@ -14,6 +27,22 @@ body {
 nav {
     color: var(--secondary-color);
     background-color: var(--dark-color);
+}
+
+.custom_table_scroll {
+    position: relative;
+    height: 300px;
+    overflow: auto;
+}
+
+.table_scroll_y {
+    display: block;
+}
+
+.tableHeader {
+    position: sticky;
+    top: 0;
+    background-color: white;
 }
 
 footer {
