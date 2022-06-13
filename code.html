@@ -52,22 +52,148 @@
      <!-- ==== MAIN SECTION ===-->
     <main class="flex-shrink-0">
        <div class="container py-4 px-4 mt-5">
-           <h2 class="border-2 border-bottom border-dark">The Code for App Name</h2>
+           <h2 class="border-2 border-bottom border-dark">The Code for LOAN SHARK</h2>
         <div class="row row-cols-1 row-cols-lg-2">
             <div class="col col-lg-8">
                 <pre class="line-numbers">
                     <code class="language-javascript">
-                        //Call Hello World
-                        function helloWorld() {
-                            alert("Hello World");
+                        //Get the values from the Page
+                        //Start of Controller function
+                        function getValues() {
+                            //get values from the page
+                            let loanAmount = document.getElementById("loanAmount").value;
+                            let months = document.getElementById("months").value;
+                            let interestRate = document.getElementById("interestRate").value;
+
+                            //Validate data from input
+                            //attempt to parse into INT
+                            loanAmount = parseInt(loanAmount);
+                            months = parseInt(months);
+                            interestRate = parseInt(interestRate);
+
+                            //if statement to validate data
+                            if(Number.isInteger(loanAmount) && Number.isInteger(months) && Number.isInteger(interestRate)) {
+
+                                //All is good and continue
+                                // calculate Monthly Payment
+                                //let monthlyPayment = monthPayment(loanAmount, months, interestRate);
+                                //call loanSchedule()
+                                let loanData = loanCalc(loanAmount, months, interestRate);
+                                //call displayLoan()
+                                displayLoan(loanData);
+
+                            }else{
+                                alert("You must enter valid numbers.")
+                            }
+
+                        }
+
+                        //Generate amortization schedule for length of loan
+                        function loanCalc(loanAmount, months, rate) {
+                            //calculate monthly payment
+                            let monthlyPayment = (loanAmount) * (rate/1200) / (1 - Math.pow((1 + rate/1200), -months));
+                            monthlyPayment = Math.round((monthlyPayment + Number.EPSILON) * 100) / 100;
+
+                            //create empty array
+                            let loanPayments = [];
+                            let month = 1;
+                            let interest = Math.round(((loanAmount * (rate/1200)) + Number.EPSILON) * 100) / 100;
+                            let totInterest = interest;
+                            let principal = Math.round(((monthlyPayment - interest) + Number.EPSILON) * 100) / 100;
+                            let balance = Math.round(((loanAmount - principal) + Number.EPSILON) * 100) / 100;
+                            let loanPayment = {};
+
+                            //we want to get all payment data for each month.
+                            for (let i = 1; i <= months; i++){
+                                //loops until conditions are true
+                                loanPayment = {
+                                    "month": month,
+                                    "payment": monthlyPayment,
+                                    "principal": principal,
+                                    "interest": interest,
+                                    "totInterest": totInterest,
+                                    "balance": balance
+                                };
+                            
+                                loanPayments.push(loanPayment);
+
+                                if( month < months){
+                                month += 1;
+                                interest = Math.round(((balance * (rate/1200)) + Number.EPSILON) * 100) / 100;
+                                totInterest = Math.round(((totInterest + interest) + Number.EPSILON) * 100) / 100;
+                                principal = Math.round(((monthlyPayment - interest) + Number.EPSILON) * 100) / 100;
+                                balance = Math.round(((balance - principal) + Number.EPSILON) * 100) / 100;
+                                }
+                                
+                            }
+
+                            return {
+                                'totInterest': totInterest, 
+                                'loanPayments': loanPayments,
+                                'monthlyPayment': monthlyPayment,
+                                'loanAmount': loanAmount
+                            };
+                        }
+
+                        //Display or view functions
+                        function displayLoan(loanData) {  
+
+                            let totInterest = loanData.totInterest;
+                            let paymentSchedule = loanData.loanPayments;
+                            let principal = loanData.loanAmount;
+                            let payment = loanData.monthlyPayment;
+
+                            let totCost = principal + totInterest;
+                            //Get table element
+                            document.getElementById("payment").innerHTML = `$ ${payment}`;
+                            document.getElementById('principal').innerHTML = `$ ${principal}`;
+                            document.getElementById('totInterest').innerHTML = `$ ${totInterest}`;
+                            document.getElementById('totCost').innerHTML = `$ ${totCost}`;
+
+
+                            let tableBody = document.getElementById("results");
+                            //clear table first to ensure correct data is displayed
+                            tableBody.innerHTML = "";
+
+                            for (let index = 0; index < paymentSchedule.length; index ++) {
+
+                                    let tableRow = document.createElement('tr');
+
+                                    let rowData1 = document.createElement('td');
+                                    rowData1.innerHTML = paymentSchedule[index].month;
+                                    let rowData2 = document.createElement('td');
+                                    rowData2.innerHTML = paymentSchedule[index].payment;
+                                    let rowData3 = document.createElement('td');
+                                    rowData3.innerHTML = paymentSchedule[index].principal;
+                                    let rowData4 = document.createElement('td');
+                                    rowData4.innerHTML = paymentSchedule[index].interest;
+                                    let rowData5 = document.createElement('td');
+                                    rowData5.innerHTML = paymentSchedule[index].totInterest;
+                                    let rowData6 = document.createElement('td');
+                                    rowData6.innerHTML = paymentSchedule[index].balance;
+
+                                    tableRow.appendChild(rowData1);
+                                    tableRow.appendChild(rowData2);
+                                    tableRow.appendChild(rowData3);
+                                    tableRow.appendChild(rowData4);
+                                    tableRow.appendChild(rowData5);
+                                    tableRow.appendChild(rowData6);
+
+                                    tableBody.appendChild(tableRow);
+                                }
+
                         }
                     </code> 
                 </pre>
             </div>
             <div class="col col-lg-4">
-                <p>The Code is structured in one function.</p>
-                <h5>Hello World</h5>
-                <p>Hello World is a function that displays an alert with a message of "Hello World".</p>
+                <p>The Code is structured into 3 main functions. One to get the user input, one to control the logic as to what is done with it and one to display it to the screen.</p>
+                <h5>GetValues</h5>
+                <p>Get Values takes in the loan amount, the number of months or life of the loan and the interest rate. It then passes that data along to the Loan Calc function which controls all of the logic and gets back an object which is then passed along to the Display Loan function.</p>
+                <h5>Loan Calc</h5>
+                <p>This is the logic function where all the real work gets done. First thing it does is to calculate out the monthly payment of the loan. Next it creates an empty array to store all of the monthly payment data. It then sets the initial values of interest, total interest, principal and the balance. Next it loops through all of the months making the calculations for each month and pushing those values (as an object) into the array. It then takes all of the information and creates on larger object which it sends back to the Get Values function.</p>
+                <h5>Display Loan</h5>
+                <p>This function is for displaying the data to the page for the user to see. First it takes in the object of LoanData and breaks it into variables to be used. Next it displays the Monthly Payment, the original loan amount, the total interest you could expect to pay and the final cost of the loan. It then creates as many tables rows as there are months for the loan to show the amortization schedule of the payments over the life of the loan.</p>
             </div>
         </div>
        </div>
